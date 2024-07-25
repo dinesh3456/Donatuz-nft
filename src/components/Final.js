@@ -1,28 +1,27 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
-import "../styles/Final.css";
-import donatuzLogo from "../assets/donatuz-logo.png"; // Make sure to have this logo in your assets
+import { ReactComponent as WhaleImage } from "../assets/svg/donatuz-whale.svg";
 
 const Final = () => {
-  const location = useLocation();
-  const { nftImageUrl } = location.state || {};
-
   return (
-    <div className="minted-nft-container">
-      <header className="header">
-        <img src={donatuzLogo} alt="Donatuz Logo" className="logo" />
-      </header>
-      <main className="main-content">
-        <div className="nft-display">
-          <div className="nft-frame">
-            <div className="glow-effect"></div>
-            <img src={nftImageUrl} alt="Minted NFT" className="nft-image" />
+    <div className="flex items-center justify-center min-h-screen px-4 py-12">
+      <div className="max-w-7xl w-full flex flex-col lg:flex-row items-center justify-between">
+        <div className="w-full lg:w-1/2 mb-8 lg:mb-0">
+          <div className="relative aspect-square max-w-[500px] mx-auto">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <WhaleImage className="w-full h-full object-contain" />
+            </div>
           </div>
         </div>
-        <h1 className="welcome-text">
-          Welcome to Donatuz Early Adopter Community
-        </h1>
-      </main>
+        <div className="w-full lg:w-1/2 lg:pl-16 text-center lg:text-left">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
+            <span className="whitespace-normal lg:whitespace-nowrap">
+              Welcome to Donatuz Early
+            </span>
+            <br />
+            Adopter Community
+          </h1>
+        </div>
+      </div>
     </div>
   );
 };
