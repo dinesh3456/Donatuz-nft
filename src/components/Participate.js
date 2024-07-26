@@ -157,6 +157,9 @@ function Participate() {
                     quantity: BigInt(quantity),
                   })
                 }
+                onError={(error) => {
+                  alert("Already minted the NFT!");
+                }}
                 onTransactionConfirmed={(result) => {
                   alert("NFT Claimed!");
                   console.log("Transaction confirmed:", result);
