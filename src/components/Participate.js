@@ -16,6 +16,7 @@ import {
 } from "thirdweb/extensions/erc721";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { XIcon, TelegramIcon, TickIcon } from "../assets/svg/symbols.js";
+import NFTMintingPopup from "./Alert";
 
 const SocialButton = ({ onClick, isFollowed, platform }) => (
   <button
@@ -51,6 +52,12 @@ function Participate() {
   const [mintingError, setMintingError] = useState(null);
   const [quantity] = useState(1);
 
+  const [popupState, setPopupState] = useState({
+    isVisible: false,
+    message: "",
+    details: "",
+    type: "success",
+  });
   const contract = openEditionContract;
 
   const { data: contractMetadata, isLoading: isContractMetadataLoading } =
@@ -94,6 +101,9 @@ function Participate() {
   if (redirectToHome) {
     return <Navigate to="/" />;
   }
+  const handleClosePopup = () => {
+    setPopupState((prev) => ({ ...prev, isVisible: false }));
+  };
 
   return (
     <div className="min-h-screen pt-16 sm:pt-24">
@@ -158,10 +168,23 @@ function Participate() {
                   })
                 }
                 onError={(error) => {
-                  alert("Already minted the NFT!");
+                  setPopupState({
+                    isVisible: true,
+                    message: "Minting Failed",
+                    details: "You have already minted the NFT!",
+                    type: "error",
+                  });
                 }}
                 onTransactionConfirmed={(result) => {
-                  alert("NFT Claimed!");
+                  setPopupState({
+                    isVisible: true,
+                    message: "NFT Claimed Successfully!",
+                    details: `Transaction Hash: ${result.transactionHash.slice(
+                      0,
+                      10
+                    )}...`,
+                    type: "success",
+                  });
                   console.log("Transaction confirmed:", result);
                   console.log("Transaction hash:", result.transactionHash);
                   console.log("Block number:", result.blockNumber);
@@ -194,6 +217,13 @@ function Participate() {
           </div>
         )}
       </div>
+      <NFTMintingPopup
+        message={popupState.message}
+        details={popupState.details}
+        type={popupState.type}
+        isVisible={popupState.isVisible}
+        onClose={handleClosePopup}
+      />
     </div>
   );
 }
