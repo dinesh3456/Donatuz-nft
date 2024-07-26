@@ -3,7 +3,7 @@ import { baseSepolia, sepolia } from "thirdweb/chains";
 import { inAppWallet } from "thirdweb/wallets";
 
 // Replace this with your client ID string
-const clientId = "b492a3e50399e9278ec5617b45d81d38";
+const clientId = "0f3c67dbd4285fccbb65d02953f0bfd4";
 
 if (!clientId) {
   throw new Error("No client ID provided");
