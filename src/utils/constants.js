@@ -1,9 +1,11 @@
 import { createThirdwebClient, getContract } from "thirdweb";
-import { baseSepolia, sepolia } from "thirdweb/chains";
+import { baseSepolia, sepolia, defineChain } from "thirdweb/chains";
 import { inAppWallet } from "thirdweb/wallets";
 
 // Replace this with your client ID string
-const clientId = "0f3c67dbd4285fccbb65d02953f0bfd4";
+const clientId = "65c5e37cd7bcab997368ba6c11c9dadf";
+
+//secret key : WnAzDgGmnUuaRlpZW8wUqA18BMeCu0TQOgyOeC1RuZBUHl_At29ucMsg0i4OVwbAF0niZb-cXy8gqn_Pp48QRw
 
 if (!clientId) {
   throw new Error("No client ID provided");
@@ -13,9 +15,9 @@ export const client = createThirdwebClient({
   clientId: clientId,
 });
 
-export const chain = baseSepolia;
+export const chain = defineChain(42026);
 export const openEditionDropAddress =
-  "0xD29EC14ceEC715b05301fC7D2ECF970B2A10f3C0";
+  "0x14342fbe2fe9ebf89aF94dE47298Ef742eEF95C5";
 export const editionDropTokenId = 0n;
 
 export const openEditionContract = getContract({
