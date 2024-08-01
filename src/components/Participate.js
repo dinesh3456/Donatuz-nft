@@ -17,6 +17,7 @@ import {
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { XIcon, TelegramIcon, TickIcon } from "../assets/svg/symbols.js";
 import NFTMintingPopup from "./Alert";
+import MintingProgressPopup from "./MintingProgressPopup";
 
 const SocialButton = ({ onClick, isFollowed, platform }) => (
   <button
@@ -51,6 +52,9 @@ function Participate() {
   const [redirectToHome, setRedirectToHome] = useState(false);
   const [mintingError, setMintingError] = useState(null);
   const [quantity] = useState(1);
+  const [isMinting, setIsMinting] = useState(false);
+  const [showMintingPopup, setShowMintingPopup] = useState(false);
+  const [mintingComplete, setMintingComplete] = useState(false);
 
   const [popupState, setPopupState] = useState({
     isVisible: false,
@@ -79,6 +83,14 @@ function Participate() {
     }
   }, [account]);
 
+  useEffect(() => {
+    console.log("isMinting state changed:", isMinting);
+  }, [isMinting]);
+
+  useEffect(() => {
+    console.log("showMintingPopup state changed:", showMintingPopup);
+  }, [showMintingPopup]);
+
   const handleFollowX = useCallback(() => {
     window.open("https://x.com/Donatuz_", "_blank");
     setIsFollowingX(true);
@@ -98,12 +110,50 @@ function Participate() {
     [claimCondition]
   );
 
+  const handleStartMinting = useCallback(() => {
+    console.log("Starting minting process");
+    setIsMinting(true);
+    setShowMintingPopup(true);
+  }, []);
+
+  const handleMintingComplete = useCallback(
+    (result) => {
+      console.log("Minting process complete");
+      setMintingComplete(true);
+      setIsMinting(false);
+      setPopupState({
+        isVisible: true,
+        message: "NFT Claimed Successfully!",
+        details: `Transaction Hash: ${result.transactionHash.slice(0, 10)}...`,
+        type: "success",
+      });
+      console.log("Transaction confirmed:", result);
+      console.log("Transaction hash:", result.transactionHash);
+      console.log("Block number:", result.blockNumber);
+      console.log("From address:", result.from);
+      console.log("To address:", result.to);
+      console.log("Gas used:", result.gasUsed.toString());
+    },
+    [setPopupState]
+  );
+
+  const handleCountdownComplete = useCallback(() => {
+    console.log("Countdown complete");
+    setShowMintingPopup(false);
+  }, []);
+
+  useEffect(() => {
+    if (mintingComplete && !showMintingPopup) {
+      console.log("Navigating to final page");
+      const mintedNftUrl =
+        "https://ipfs.io/ipfs/QmUcFE8QCxefqdxfBx1DvBzFeWQVHhpx6EiDMwkaq3tjuZ";
+      navigate("/final", { state: { nftImageUrl: mintedNftUrl } });
+    }
+  }, [mintingComplete, showMintingPopup, navigate]);
+
   if (redirectToHome) {
     return <Navigate to="/" />;
   }
-  const handleClosePopup = () => {
-    setPopupState((prev) => ({ ...prev, isVisible: false }));
-  };
 
   return (
     <div className="min-h-screen pt-16 sm:pt-24">
@@ -167,7 +217,13 @@ function Participate() {
                     quantity: BigInt(quantity),
                   })
                 }
+                onSubmit={() => {
+                  console.log("Transaction submitted");
+                }}
                 onError={(error) => {
+                  console.error("Minting error:", error);
+                  setIsMinting(false);
+                  setShowMintingPopup(false);
                   setPopupState({
                     isVisible: true,
                     message: "Minting Failed",
@@ -175,36 +231,23 @@ function Participate() {
                     type: "error",
                   });
                 }}
-                onTransactionConfirmed={(result) => {
-                  setPopupState({
-                    isVisible: true,
-                    message: "NFT Claimed Successfully!",
-                    details: `Transaction Hash: ${result.transactionHash.slice(
-                      0,
-                      10
-                    )}...`,
-                    type: "success",
-                  });
-                  console.log("Transaction confirmed:", result);
-                  console.log("Transaction hash:", result.transactionHash);
-                  console.log("Block number:", result.blockNumber);
-                  console.log("From address:", result.from);
-                  console.log("To address:", result.to);
-                  console.log("Gas used:", result.gasUsed.toString());
-
-                  const mintedNftUrl =
-                    "https://ipfs.io/ipfs/QmUcFE8QCxefqdxfBx1DvBzFeWQVHhpx6EiDMwkaq3tjuZ";
-                  navigate("/final", { state: { nftImageUrl: mintedNftUrl } });
-                }}
-                disabled={!isFollowingX || !isFollowingTelegram}
+                onTransactionConfirmed={handleMintingComplete}
+                disabled={!isFollowingX || !isFollowingTelegram || isMinting}
                 className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-base sm:text-lg font-semibold !text-white ${
-                  isFollowingX && isFollowingTelegram
+                  isFollowingX && isFollowingTelegram && !isMinting
                     ? "!bg-[#504DFB] hover:!bg-opacity-80"
-                    : "!bg-[#ddad27] hover:!bg-opacity-80 cursor-pointer"
+                    : "!bg-[#ddad27] hover:!bg-opacity-80 cursor-not-allowed"
                 }`}
+                onClick={() => {
+                  if (!isMinting) {
+                    handleStartMinting();
+                  }
+                }}
               >
                 {isFollowingX && isFollowingTelegram
-                  ? "Claim NFT"
+                  ? isMinting
+                    ? "Minting..."
+                    : "Claim NFT"
                   : "Start Minting"}
               </TransactionButton>
             </div>
@@ -222,7 +265,11 @@ function Participate() {
         details={popupState.details}
         type={popupState.type}
         isVisible={popupState.isVisible}
-        onClose={handleClosePopup}
+        onClose={() => setPopupState((prev) => ({ ...prev, isVisible: false }))}
+      />
+      <MintingProgressPopup
+        isVisible={showMintingPopup}
+        onCountdownComplete={handleCountdownComplete}
       />
     </div>
   );

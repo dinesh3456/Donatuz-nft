@@ -38,8 +38,8 @@ function Home() {
           Donatuz is Live!
         </h1>
         <p className="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto mb-12 text-white">
-          "Empower change with every block. Welcome to Donatuz, where
-          transparency meets generosity on the blockchain."
+          "Join the mint! Celebrate with us as we launch the creator-first
+          content monetization platform."
         </p>
         <ConnectButton
           client={client}
